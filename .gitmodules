@@ -1,0 +1,9 @@
+[submodule "lib/org-helpers"]
+	path = lib/org-helpers
+	url = git://github.com/leoc/org-helpers.el.git
+[submodule "lib/org-pomodoro"]
+	path = lib/org-pomodoro
+	url = git://github.com/lolownia/org-pomodoro.git
+[submodule "lib/express"]
+	path = lib/express
+	url = git://github.com/rolandwalker/express.git
