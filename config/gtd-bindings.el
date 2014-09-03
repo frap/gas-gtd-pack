@@ -1,5 +1,13 @@
 ;; agasson org-mode GTD bindingss
 
+;; load org helper libraries
+(require 'org-habit)
+(live-add-pack-lib "express")
+(require 'express)
+(live-add-pack-lib "org-helpers")
+(require 'org-helpers)
+(live-add-pack-lib "org-pomodoro")
+(require 'org-pomodoro)
 
 (global-set-key (kbd "C-c l")  'org-store-link)
 (global-set-key (kbd "C-c a")  'org-agenda)
@@ -8,10 +16,6 @@
 (global-set-key (kbd "<f1>")   'org-agenda)
 (global-set-key (kbd "<f2>")   'org-clock-goto)
 (global-set-key (kbd "C-<f2>") 'org-clock-in)
-
-(require 'org-habit)
-(require 'org-helpers)
-(require 'org-pomodoro)
 
 (global-set-key (kbd "C-c C-x C-i") 'org-pomodoro)
 (global-set-key (kbd "C-c C-x C-o") 'org-pomodoro)
@@ -27,11 +31,14 @@
          ("ghub"      : "http://github.com/%s")
          ("ghub-pages" : "http://%s.github.io")
          ))
+
 ;; sets the default workflow keywords and their faces
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "RENDEZ_VOUS(r)" "EN_COURS(e)" "|" "FINI(f!/!)")
-        (sequence "VALUE(v)" "GOAL(G)"  "|" "FINI(f!/!)")
-        (sequence "ATTENTE(w@/!)" "SOUTE(h@/!)" "UN_JOUR(j)" "|" "ANNULÉ(a@/!)" "TÉLÉPHONE")))
+      '((sequence "TODO(t)" "EN_COURS(e)" "|" "FINI(f!/!)")
+        (sequence "RENDEZ_VOUS(r)" "TÉLÉPHONE(p)" "|" "FINI(f!/!)")
+        (sequence "|" "ANNULÉ(a@/!)")
+        (sequence "GOAL(G)"  "|" "FINI(f!/!)")
+        (sequence "ATTENTE(w@/!)" "SOUTE(h@/!)" "UN_JOUR(j)" "VALUE(V)")))
 
 (setq org-priority-faces
       '((65 :foreground "#ff2f30" :weight bold)
@@ -48,6 +55,7 @@
         ("TÉLÉPHONE"     :foreground "#2eb9a7" :weight bold)
         ("GOAL"          :foreground "#1010ff" :weight bold)
         ("VALUE"         :foreground "#afff10" :weight bold)
+        ("QUOTE"         :foreground "#0444a9" :weight bold)
         ("RENDEZ_VOUS"   :foreground "#0f4f43" :weight bold)
         ))
 
@@ -100,9 +108,9 @@
   (lambda () (interactive) (org-capture nil "j")))
 
 ;; display the tags farther right
-(setq org-agenda-tags-column -102)
+(setq org-agenda-tags-column -82)
 ;; display the org-habit graph right of the tags
-(setq org-habit-graph-column 102)
+(setq org-habit-graph-column 82)
 (setq org-habit-following-days 7)
 (setq org-habit-preceding-days 21)
 
@@ -123,37 +131,37 @@
       '((" " "Agenda"
          ((agenda "" nil)
           (alltodo ""
-                   ((org-agenda-overriding-header "Tasks to Refile")
+                   ((org-agenda-overriding-header "Tâches à la Représenter")
                     (org-agenda-files '("~/Dropbox/GTD/inbox.org"))
                     (org-agenda-skip-function
                      '(oh/agenda-skip :headline-if-restricted-and '(todo)))))
           (tags-todo "-ANNULÉ/!-SOUTE-ATTENTE-GOAL"
-                     ((org-agenda-overriding-header "Stuck Projects")
+                     ((org-agenda-overriding-header "Projets Bloqués")
                       (org-agenda-skip-function
                        '(oh/agenda-skip :subtree-if '(inactive non-project non-stuck-project habit scheduled deadline)))))
           (tags-todo "-ATTENTE-ANNULÉ/!EN_COURS"
-                     ((org-agenda-overriding-header "Next Tasks")
+                     ((org-agenda-overriding-header "Tâches à Venir")
                       (org-agenda-skip-function
                        '(oh/agenda-skip :subtree-if '(inactive project habit scheduled deadline)))
                       (org-tags-match-list-sublevels t)
-                      (org-agenda-sorting-strategy '(todo-state-down effort-up category-keep))))
+                      (org-agenda-sorting-strategy '(priority-down todo-state-down effort-up category-keep))))
           (tags-todo "-ANNULÉ/!-EN_COURS-SOUTE-ATTENTE-VALUE-GOAL"
-                     ((org-agenda-overriding-header "Available Tasks")
+                     ((org-agenda-overriding-header "Tâches Disponibles")
                       (org-agenda-skip-function
                        '(oh/agenda-skip :headline-if '(project)
                                         :subtree-if '(inactive habit scheduled deadline)
                                         :subtree-if-unrestricted-and '(subtask)
                                         :subtree-if-restricted-and '(single-task)))
-                      (org-agenda-sorting-strategy '(category-keep))))
+                      (org-agenda-sorting-strategy '(effort-up priority-down))))
           (tags-todo "-ANNULÉ/!"
-                     ((org-agenda-overriding-header "Currently Active Projects")
+                     ((org-agenda-overriding-header "Projets actuellement Actifs")
                       (org-agenda-skip-function
                        '(oh/agenda-skip :subtree-if '(non-project stuck-project inactive habit)
                                         :headline-if-unrestricted-and '(subproject)
                                         :headline-if-restricted-and '(top-project)))
-                      (org-agenda-sorting-strategy '(category-keep))))
+                      (org-agenda-sorting-strategy '(effort-up priority-down category-keep))))
           (tags-todo "-ANNULÉ/!ATTENTE|SOUTE"
-                     ((org-agenda-overriding-header "Waiting and Postponed Tasks")
+                     ((org-agenda-overriding-header "Attente ou Reporté Tâches")
                       (org-agenda-skip-function
                        '(oh/agenda-skip :subtree-if '(project habit))))))
          nil)
@@ -209,12 +217,38 @@
   (find-file "~/Dropbox/GTD/gtd.org"))
 
 ;; Clocking shit
+;; Resume clocking task when emacs is restarted
+(org-clock-persistence-insinuate)
+;;
+;; Show lot of clocking history so it's easy to pick items off the C-F11 list
+(setq org-clock-history-length 23)
+;; Resume clocking task on clock-in if the clock is open
+(setq org-clock-in-resume t)
+;; Change tasks to NEXT when clocking in
+(setq org-clock-in-switch-to-state 'gas/clock-in-to-next)
+;; Separate drawers for clocking and logs
+(setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
+;; Save clock data and state changes and notes in the LOGBOOK drawer
+(setq org-clock-into-drawer t)
+;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
+(setq org-clock-out-remove-zero-time-clocks t)
+;; Clock out when moving task to a done state
+(setq org-clock-out-when-done t)
+;; Save the running clock and all clock history when exiting Emacs, load it on startup
+(setq org-clock-persist t)
+;; Do not prompt to resume an active clock
+(setq org-clock-persist-query-resume nil)
+;; Enable auto clock resolution for finding open clocks
+(setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
+;; Include current clocking task in clock reports
+(setq org-clock-report-include-clocking-task t)
+
 (setq gas/keep-clock-running nil)
 
 (defun gas/clock-in-to-next (kw)
   "Switch a task from TODO to EN_COURS when clocking in.
 Skips capture tasks, projects, and subprojects.
-Switch projects and subprojects from NEXT back to TODO"
+Switch projects and subprojects from EN_COURS back to TODO"
   (when (not (and (boundp 'org-capture-mode) org-capture-mode))
     (cond
      ((and (member (org-get-todo-state) (list "TODO"))
