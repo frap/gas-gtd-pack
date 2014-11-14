@@ -1,118 +1,15 @@
-;; agasson org-mode GTD bindingss
+;; agasson org-mode GTD bindings
+;; Time-stamp: <2014-09-24 13:30:29 agasson>
+;;
 
-;; load org helper libraries
-(require 'org-habit)
-(live-add-pack-lib "express")
-(require 'express)
-(live-add-pack-lib "org-helpers")
-(require 'org-helpers)
-(live-add-pack-lib "org-pomodoro")
-(require 'org-pomodoro)
 
-(global-set-key (kbd "C-c l")  'org-store-link)
-(global-set-key (kbd "C-c a")  'org-agenda)
-(global-set-key (kbd "C-c b")  'org-iswitchb)
-
-(global-set-key (kbd "<f1>")   'org-agenda)
-(global-set-key (kbd "<f2>")   'org-clock-goto)
-(global-set-key (kbd "C-<f2>") 'org-clock-in)
-
-(global-set-key (kbd "C-c C-x C-i") 'org-pomodoro)
-(global-set-key (kbd "C-c C-x C-o") 'org-pomodoro)
-
-;; Set up abbreviations
-(setq org-link-abbrev-alist
-       '(("bugzilla"  . "http://10.1.2.9/bugzilla/show_bug.cgi?id=")
-         ("url-to-fr" . "http://translate.google.fr/translate?sl=en&tl=fr&u=%h")
-         ("google"    . "http://www.google.com/search?q=")
-         ("gmap"      . "http://maps.google.com/maps?q=%s")
-         ("omap"      . "http://nominatim.openstreetmap.org/search?q=%s&polygon=1")
-         ("ads"       . "http://adsabs.harvard.edu/cgi-bin/nph-abs_connect?author=%s&db_key=AST")
-         ("ghub"      : "http://github.com/%s")
-         ("ghub-pages" : "http://%s.github.io")
-         ))
-
-;; sets the default workflow keywords and their faces
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "EN_COURS(e)" "|" "FINI(f!/!)")
-        (sequence "RENDEZ_VOUS(r)" "TÉLÉPHONE(p)" "|" "FINI(f!/!)")
-        (sequence "|" "ANNULÉ(a@/!)")
-        (sequence "GOAL(G)"  "|" "FINI(f!/!)")
-        (sequence "ATTENTE(w@/!)" "SOUTE(h@/!)" "UN_JOUR(j)" "VALUE(V)")))
-
-(setq org-priority-faces
-      '((65 :foreground "#ff2f30" :weight bold)
-        (66 :foreground "#ffaf60" :weight bold)
-        (67 :foreground "#00dca8" :weight bold)))
-
-(setq org-todo-keyword-faces
-      '(("UN_JOUR"       :foreground "#c93f80" :weight bold)
-        ("EN_COURS"      :foreground "#2f2ccc" :weight bold)
-        ("ATTENTE"       :foreground "#fd9b3b" :weight bold)
-        ("FINI"          :foreground "#19b85d" :weight bold)
-        ("SOUTE"         :foreground "#afff64" :weight bold)
-        ("ANNULÉ"        :foreground "#b81590" :weight bold)
-        ("TÉLÉPHONE"     :foreground "#2eb9a7" :weight bold)
-        ("GOAL"          :foreground "#1010ff" :weight bold)
-        ("VALUE"         :foreground "#afff10" :weight bold)
-        ("QUOTE"         :foreground "#0444a9" :weight bold)
-        ("RENDEZ_VOUS"   :foreground "#0f4f43" :weight bold)
-        ))
-
-; change TODO face
-(set-face-attribute 'org-todo nil
-                    :weight 'bold :box '(:line-width 1 :color "#D80000")
-                                        :foreground "#D80000" :background "#000000")
-
-;; sets the TAG list
-(setq org-tag-alist '((:startgroup . nil)
-                      ("@maision" . ?m)
-                      ("@bureau" . ?b)
-                      ("@voiture" . ?v)
-                      ("@ferme"   . ?f)
-                      (:endgroup . nil)
-                      ("TÉLÉPHONE" . ?t)
-                      ("ATTENTE" . ?w)
-                      ("SOUTE" . ?h)
-                      ("PERSONAL" . ?P)
-                      ("WORK" . ?W)
-                      ("FERME" . ?F)
-                      ("ORG" . ?O)
-                      ("crypt" . ?c)
-                      ("NOTE" . ?n)
-                      ("ANNULÉ" . ?a)
-                      ("GIT" . ?g)
-                      ("PROG" . ?p)
-                      ("en ligne" . ?e)))
-
-;; setup for org-capture
-(setq org-directory "~/Dropbox/GTD")
-(setq org-default-notes-file "~/Dropbox/GTD/inbox.org")
-
-;; The default agenda files. inbox.org is used only in custom agenda.
-(setq org-agenda-files (list    "~/Dropbox/GTD/gtd.org"
-                                "~/Dropbox/GTD/goals.org"
-                                "~/Dropbox/GTD/career.org"
-                                "/home/agasson/Dropbox/GTD/feedme.org"
-                                "~/Dropbox/GTD/calendar.org"))
-
-(setq org-capture-templates
-      '(("r" "Todo" entry (file+headline "~/Dropbox/GTD/inbox.org" "Inbox")
-         "* TODO %?")
-        ("j" "Journal" entry (file+datetree "~/Dropbox/GTD/journal.org")
-         (file "~/Dropbox/GTD/templates/review"))))
-
-(define-key global-map "\C-cr"
-  (lambda () (interactive) (org-capture nil "r")))
-(define-key global-map "\C-cj"
-  (lambda () (interactive) (org-capture nil "j")))
 
 ;; display the tags farther right
-(setq org-agenda-tags-column -82)
+(setq org-agenda-tags-column -102)
 ;; display the org-habit graph right of the tags
-(setq org-habit-graph-column 82)
+(setq org-habit-graph-column 102)
 (setq org-habit-following-days 7)
-(setq org-habit-preceding-days 21)
+(setq org-habit-preceding-days 14)
 
 (defun custom-org-agenda-mode-defaults ()
   (electric-indent-mode -1)
@@ -347,7 +244,7 @@ as the default task."
               nil))  ; available to archive
         (or next-headline (point-max))))))
 
-'(org-clock-in-switch-to-state 'gas/clock-in-to-next)
+(setq org-clock-in-switch-to-state 'gas/clock-in-to-next)
 
 ;;Archivable defaults
 (setq org-archive-mark-done nil)
